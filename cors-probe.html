@@ -17,35 +17,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>CORS probe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS Probe</title>
 </head>
 <body>
-    <div id="result">PENDING</div>
-    <div id="detail"></div>
-    <script>
-        (function () {
-            var params = new URLSearchParams(window.location.search);
-            var target = params.get('target');
-            var resultEl = document.getElementById('result');
-            var detailEl = document.getElementById('detail');
+<div id="result">PENDING</div>
 
-            if (!target) {
-                resultEl.textContent = 'NO_TARGET';
-                return;
-            }
+<script>
+    const target = new URLSearchParams(window.location.search).get("target");
+    const result = document.getElementById("result");
 
-            fetch(target, { method: 'GET', credentials: 'include', mode: 'cors' })
-                .then(function (response) {
-                    resultEl.textContent = 'CORS_OK';
-                    detailEl.textContent = 'status=' + response.status;
-                })
-                .catch(function (error) {
-                    // A TypeError here almost always means the browser blocked the response
-                    // because the server did not return a matching Access-Control-Allow-Origin.
-                    resultEl.textContent = 'CORS_BLOCKED';
-                    detailEl.textContent = String(error);
-                });
-        })();
-    </script>
+    if (!target) {
+        result.textContent = "ERROR";
+    } else {
+        fetch(target, {
+            method: "GET",
+            credentials: "include"
+        })
+            .then(() => {
+                result.textContent = "CORS_ALLOWED";
+            })
+            .catch(() => {
+                result.textContent = "CORS_BLOCKED";
+            });
+    }
+</script>
 </body>
 </html>
