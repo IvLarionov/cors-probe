@@ -2,8 +2,7 @@
 
 Minimal web application used for browser-level CORS tests.
 
-The application serves `cors-probe.html`, which performs a cross-origin
-GET request to a target URL supplied through the `target` query parameter.
+The application serves `cors-probe.html`, which performs a cross-origin GET request to a target URL supplied through the `target` query parameter.
 
 ## Usage
 
@@ -15,18 +14,20 @@ For example:
 
     http://cors-test-allowed.example/cors-probe.html?target=http://dev2.vqs.net:8080/api/v3/server_info
 
+
 The page displays:
 
-- `CORS_ALLOWED` when the browser can read the response.
-- `CORS_BLOCKED` when the browser blocks the request because of CORS
-  or the request otherwise fails.
+- `CORS_ALLOWED` when the browser allows JavaScript to access the response.
+- `CORS_BLOCKED` when the browser prevents JavaScript from accessing the response, normally because of CORS restrictions.
 - `ERROR` when the `target` parameter is missing.
+
+The HTTP status of the response does not determine the result. For example, a `401 Unauthorized` response can still result in `CORS_ALLOWED` if the browser allows JavaScript to access the response.
 
 ## Docker
 
 Build:
 
-    docker build -t cors-probe .
+    docker build -t cors-probe
 
 Run:
 
