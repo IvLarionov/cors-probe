@@ -1,0 +1,51 @@
+<!--
+  Copyright 2003-2026 OneVizion, Inc. All rights reserved.
+
+  Minimal static page used for a REAL browser-level CORS check.
+
+  It must be served from a HOST DIFFERENT from the app under test (e.g. a small nginx/http.server
+  sidecar exposed on its own hostname/port in the branch/nightly test environment - the same idea
+  as the "SAML-fake-branch-testing" fake IdP used for SAML SSO tests).
+
+  Usage: open this page as
+      https://<some-other-host>/cors-probe.html?target=<app-url-to-call>
+  It performs a cross-origin fetch() to "target" and writes the outcome into #result:
+      "CORS_OK"      - browser could read the response (server sent proper CORS headers)
+      "CORS_BLOCKED" - browser refused to expose the response (no/incorrect CORS headers)
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CORS probe</title>
+</head>
+<body>
+    <div id="result">PENDING</div>
+    <div id="detail"></div>
+    <script>
+        (function () {
+            var params = new URLSearchParams(window.location.search);
+            var target = params.get('target');
+            var resultEl = document.getElementById('result');
+            var detailEl = document.getElementById('detail');
+
+            if (!target) {
+                resultEl.textContent = 'NO_TARGET';
+                return;
+            }
+
+            fetch(target, { method: 'GET', credentials: 'include', mode: 'cors' })
+                .then(function (response) {
+                    resultEl.textContent = 'CORS_OK';
+                    detailEl.textContent = 'status=' + response.status;
+                })
+                .catch(function (error) {
+                    // A TypeError here almost always means the browser blocked the response
+                    // because the server did not return a matching Access-Control-Allow-Origin.
+                    resultEl.textContent = 'CORS_BLOCKED';
+                    detailEl.textContent = String(error);
+                });
+        })();
+    </script>
+</body>
+</html>
